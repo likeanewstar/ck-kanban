@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>CK Kanban</title>
+		<meta name="description" content="CK Kanban">
+        <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="css/style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	</head>
+	<body>
+		<header>
+			<div class="header-box">
+                <h1>CK Kanban</h1>
+                <a href="#a" title="Add a Card List" class="btn-add-list">+</a>
+			</div>
+		</header>
+		<section>
+			<div class="board-wrap">
+				<div class="board-box">
+
+                </div>
+            </div>
+		</section>
+		<script>
+			'use strict';
+
+			$(document).ready(function(){
+                
+
+                
+                $(function() {
+                    function randomString() {
+                        var chars = '0123456789abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXTZ';
+                        var str = '';
+                        for (var i = 0; i < 10; i++) {
+                            str += chars[Math.floor(Math.random() * chars.length)];
+                        }
+                        return str;
+                    }
+
+                    function Column(name) {
+                        var self = this; // useful for nested functions
+
+                        this.id = randomString();
+                        this.name = name;
+                        this.$element = createColumn();
+
+
+                        function createColumn() {
+                            var $column = $('<div>').addClass('board-list');
+                            var $columnTitle = $('<h3>').addClass('list-tit').text(self.name);
+                            var $columnCardList = $('<ul>').addClass('card-list');
+                            var $columnDelete = $('<a href="#a">').addClass('btn-del-list').text('+');
+                            var $columnAddCard = $('<a href="#a">').addClass('btn-add-card').text('+');
+
+                            $columnDelete.click(function() {
+                                self.removeColumn();
+                            });
+                            $columnAddCard.click(function(event) {
+                                self.addCard(new Card(prompt("Enter the name of the card")));
+                            });
+
+                            $column.append($columnTitle)
+                                .append($columnDelete)
+                                .append($columnAddCard)
+                                .append($columnCardList);
+
+                            return $column;
+                        }
+                    }
+                    Column.prototype = {
+                        addCard: function(card) {
+                            this.$element.children('ul').append(card.$element);
+                        },
+                        removeColumn: function() {
+                            this.$element.remove();
+                        }
+                    };
+
+                    function Card(cardTit) {
+                        var self = this;
+
+                        this.id = randomString();
+                        this.cardTit = cardTit;
+                        //this.description = description;
+                        this.$element = createCard();
+
+                        function createCard() {
+                            var $card = $('<li>').addClass('card');
+                            var $cardTit = $('<h4>').addClass('card-tit').text(self.cardTit);
+                            var $cardDescription = $('<p>').addClass('card-description').text('Please enter details.');
+                            var $cardDelete = $('<a href="#">').addClass('btn-del-card').text('+');
+
+                            $cardDelete.click(function() {
+                                self.removeCard();
+                            });
+                            
+                            $cardTit.click(function() {
+                                self.modifiedCardT();
+                            });
+
+                            $cardDescription.click(function() {
+                                self.modifiedCardD();
+                            });
+
+                            $card.append($cardTit)
+                                .append($cardDescription)
+                                .append($cardDelete);
+                            return $card;
+
+                        }
+                    }
+
+                    Card.prototype = {
+                        removeCard: function() {
+                            this.$element.remove();
+                        },
+                        modifiedCardT: function() { // 수정 이벤트이기 때문에 prompt 입력 값이 비었거나, 취소할 경우를 체크
+                            var val = prompt('Please enter the title you want to change.');
+                            if (val === null || val === '') return false;
+                            this.$element.find('.card-tit').text(val);
+                        },
+                        modifiedCardD: function() { // 수정 이벤트이기 때문에 prompt 입력 값이 비었거나, 취소할 경우를 체크
+                            var val = prompt('Please enter details to change.');
+                            if (val === null || val === '') return false;
+                            this.$element.find('.card-description').text(val);
+                        }
+                    }
+
+
+                    var board = {
+                        name: 'CK Kanban Board',
+                        addColumn: function(column) {
+                            this.$element.append(column.$element);
+                            //initSortable();
+                        },
+                        $element: $('.board-box')
+                    };
+
+                    /* function initSortable() {
+                        $('.card-list').sortable({
+                            connectWith: '.card-list',
+                            placeholder: 'card-placeholder'
+                        }).disableSelection();
+                    } */
+
+                    $('.btn-add-list')
+                        .click(function() {
+                            var name = prompt('Enter a column name');
+                            var column = new Column(name);
+                            board.addColumn(column);
+                        });
+
+                    var todoColumn = new Column('To do');
+                    var doingColumn = new Column('Doing');
+                    var doneColumn = new Column('Done');
+
+                    // ADDING COLUMNS TO THE BOARD
+                    board.addColumn(todoColumn);
+                    board.addColumn(doingColumn);
+                    board.addColumn(doneColumn);
+
+                    // CREATING CARDS
+                    var card1 = new Card('New task');
+                    var card2 = new Card('Do something');
+
+                    // ADDING CARDS TO COLUMNS
+                    todoColumn.addCard(card1);
+                    doingColumn.addCard(card2);
+                })
+
+
+
+
+			}); //ready
+
+		</script>
+	</body>
+</html>
+
